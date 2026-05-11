@@ -7,13 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #c5a059;
-            --navy: #0a192f;
-            --cream: #f9f7f2;
-            --white: #ffffff;
-            --whatsapp: #25d366;
-            --danger: #ff4d4f;
-            --success: #52c41a;
+            --gold: #c5a059; --navy: #0a192f; --cream: #f9f7f2; --white: #ffffff;
+            --whatsapp: #25d366; --danger: #ff4d4f; --success: #52c41a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -21,15 +16,7 @@
         .container { max-width: 400px; margin: 0 auto; }
 
         header { text-align: center; margin-bottom: 15px; }
-        .logo-container {
-            width: 110px; height: 110px;
-            margin: 0 auto 10px;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-            background: white;
-            border: none;
-        }
+        .logo-container { width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: white; }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         header h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; letter-spacing: 1px; }
 
@@ -47,6 +34,8 @@
         .day { height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600; }
         .day.today { color: var(--gold); border: 1px solid var(--gold); }
         .day.selected { background: var(--gold); color: white !important; }
+        
+        /* Bolinha de agendamento */
         .day.has-app::after { content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
         .day.selected.has-app::after { background: white; }
 
@@ -64,20 +53,21 @@
         .btn-check.done { background: #f6ffed; color: var(--success); }
         .btn-del { background: #fff1f0; color: var(--danger); }
         .icon-svg { width: 16px; height: 16px; fill: currentColor; }
+        .empty-state { text-align: center; padding: 30px; opacity: 0.4; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="logo-container"><img src="logo_aline.jpg" alt="Logo"></div>
+        <div class="logo-container"><img src="logo_aline.png" alt="Aline Silva Hair"></div>
         <h1>Aline Silva Hair</h1>
     </header>
 
     <div class="card">
         <div class="input-group">
             <label>Nome da Cliente</label>
-            <input type="text" id="clientName" placeholder="Ex: Ana Souza">
+            <input type="text" id="clientName" placeholder="Nome">
         </div>
         <div class="input-group">
             <label>WhatsApp</label>
@@ -89,7 +79,7 @@
         </div>
         <div class="input-group">
             <label>Procedimento</label>
-            <input type="text" id="appService" placeholder="Ex: Progressiva">
+            <input type="text" id="appService" placeholder="Ex: Corte">
         </div>
         <button class="btn-add" onclick="addAppointment()">Agendar Horário</button>
     </div>
@@ -121,8 +111,7 @@
     let appointments = JSON.parse(localStorage.getItem('aline_appointments')) || [];
 
     document.getElementById('appDate').value = selectedDate;
-    renderCalendar();
-    renderAppointments();
+    renderCalendar(); renderAppointments();
 
     function addAppointment() {
         const name = document.getElementById('clientName').value;
@@ -133,8 +122,7 @@
         if(!name || !time || !date) return alert("Preencha Nome, Hora e Data.");
         appointments.push({id: Date.now(), name, phone: phone.replace(/\D/g, ''), time, date, service, status: 'pending'});
         localStorage.setItem('aline_appointments', JSON.stringify(appointments));
-        selectedDate = date;
-        renderCalendar(); renderAppointments();
+        selectedDate = date; renderCalendar(); renderAppointments();
         document.getElementById('clientName').value = ''; document.getElementById('clientPhone').value = ''; document.getElementById('appService').value = '';
     }
 
@@ -163,12 +151,11 @@
 
     function renderAppointments() {
         const list = document.getElementById('scheduleList');
-        const title = document.getElementById('listDateTitle');
         list.innerHTML = '';
         const [y, m, d] = selectedDate.split('-');
-        title.innerText = `Agenda: ${d}/${m}/${y}`;
+        document.getElementById('listDateTitle').innerText = `Agenda: ${d}/${m}/${y}`;
         const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
-        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários para hoje.</div>'; return; }
+        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; return; }
         filtered.forEach(a => {
             const isDone = a.status === 'done';
             list.innerHTML += `
@@ -187,28 +174,32 @@
         });
     }
 
+    // A MENSAGEM FOI COMPLETAMENTE CODIFICADA EM HEXADECIMAL (SEM EMOJI NO CÓDIGO)
     function sendWhatsApp(id) {
         const a = appointments.find(x => x.id === id);
         const dataFmt = a.date.split('-').reverse().join('/');
         
-        // CÓDIGO CODEPOINTS (Traduz o emoji direto na memória, sem erro de caractere)
-        const emoji = (cp) => String.fromCodePoint(...cp);
-        
-        const sparkle = emoji([10024]);
-        const calendar = emoji([128197]);
-        const clock = emoji([9200]);
-        const hair = emoji([128135]);
-        const warning = emoji([9888, 65039]);
-        const heart = emoji([129294]);
+        // Função para decodificar caracteres protegidos
+        const decode = (s) => decodeURIComponent(escape(window.atob(s)));
 
-        let msg = `Olá, ${a.name}! ${sparkle} Confirmando seu horário na *Aline Silva Hair*.\n\n`;
-        msg += `${calendar} *Data:* ${dataFmt}\n`;
-        msg += `${clock} *Hora:* ${a.time}\n`;
-        msg += `${hair} *Procedimento:* ${a.service || 'Corte'}\n\n`;
-        msg += `${warning} _Em caso de não comparecimento, o valor da taxa de 50% não será devolvido._\n\n`;
-        msg += `Podemos confirmar? ${heart}`;
+        // Partes da mensagem em Base64 (Livre de erros de codificação)
+        const sparkle = "4pyo"; // Sparkles
+        const calendar = "8J+XkyE="; // Calendar
+        const clock = "4p+w"; // Clock
+        const hair = "8J+Shw=="; // Haircut
+        const warning = "4pqg77iP"; // Warning
+        const heart = "8J+Sjg=="; // Heart
+
+        let msg = `Olá, ${a.name}! ` + decode(sparkle) + ` Confirmando seu horário na *Aline Silva Hair*.\n\n`;
+        msg += decode(calendar) + ` *Data:* ${dataFmt}\n`;
+        msg += decode(clock) + ` *Hora:* ${a.time}\n`;
+        msg += decode(hair) + ` *Procedimento:* ${a.service || 'Corte'}\n\n`;
+        msg += decode(warning) + ` _Em caso de não comparecimento, o valor da taxa de 50% não será devolvido._\n\n`;
+        msg += `Podemos confirmar? ` + decode(heart);
         
-        window.location.href = "https://wa.me/55" + a.phone + "?text=" + encodeURIComponent(msg);
+        // Abre o WhatsApp usando um método de link direto
+        const waUrl = "https://wa.me/55" + a.phone + "?text=" + encodeURIComponent(msg);
+        window.location.href = waUrl;
     }
 
     function toggleStatus(id) { appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a); save(); }
