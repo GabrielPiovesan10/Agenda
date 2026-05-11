@@ -16,7 +16,7 @@
         .container { max-width: 400px; margin: 0 auto; }
 
         header { text-align: center; margin-bottom: 15px; }
-        .logo-container { width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: white; }
+        .logo-container { width: 110px; height: 110px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: white; }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         header h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; letter-spacing: 1px; }
 
@@ -34,8 +34,6 @@
         .day { height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600; }
         .day.today { color: var(--gold); border: 1px solid var(--gold); }
         .day.selected { background: var(--gold); color: white !important; }
-        
-        /* Bolinha de agendamento */
         .day.has-app::after { content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
         .day.selected.has-app::after { background: white; }
 
@@ -53,7 +51,6 @@
         .btn-check.done { background: #f6ffed; color: var(--success); }
         .btn-del { background: #fff1f0; color: var(--danger); }
         .icon-svg { width: 16px; height: 16px; fill: currentColor; }
-        .empty-state { text-align: center; padding: 30px; opacity: 0.4; font-size: 0.75rem; }
     </style>
 </head>
 <body>
@@ -174,30 +171,29 @@
         });
     }
 
-    // A MENSAGEM FOI COMPLETAMENTE CODIFICADA EM HEXADECIMAL (SEM EMOJI NO CÓDIGO)
+    // A MENSAGEM FOI COMPLETAMENTE CONSTRUÍDA COM HEX CODEPOINTS
     function sendWhatsApp(id) {
         const a = appointments.find(x => x.id === id);
         const dataFmt = a.date.split('-').reverse().join('/');
         
-        // Função para decodificar caracteres protegidos
-        const decode = (s) => decodeURIComponent(escape(window.atob(s)));
+        // Função que converte o código hexadecimal no emoji correspondente
+        const emoji = (hex) => String.fromCodePoint(parseInt(hex, 16));
 
-        // Partes da mensagem em Base64 (Livre de erros de codificação)
-        const sparkle = "4pyo"; // Sparkles
-        const calendar = "8J+XkyE="; // Calendar
-        const clock = "4p+w"; // Clock
-        const hair = "8J+Shw=="; // Haircut
-        const warning = "4pqg77iP"; // Warning
-        const heart = "8J+Sjg=="; // Heart
+        const sparkle = emoji("2728");
+        const calendar = emoji("1F5D3") + emoji("FE0F");
+        const clock = emoji("23F0");
+        const hair = emoji("1F487");
+        const warning = emoji("26A0") + emoji("FE0F");
+        const heart = emoji("1F90E");
 
-        let msg = `Olá, ${a.name}! ` + decode(sparkle) + ` Confirmando seu horário na *Aline Silva Hair*.\n\n`;
-        msg += decode(calendar) + ` *Data:* ${dataFmt}\n`;
-        msg += decode(clock) + ` *Hora:* ${a.time}\n`;
-        msg += decode(hair) + ` *Procedimento:* ${a.service || 'Corte'}\n\n`;
-        msg += decode(warning) + ` _Em caso de não comparecimento, o valor da taxa de 50% não será devolvido._\n\n`;
-        msg += `Podemos confirmar? ` + decode(heart);
+        let msg = "Olá, " + a.name + "! " + sparkle + " Confirmando seu horário na *Aline Silva Hair*.\n\n";
+        msg += calendar + " *Data:* " + dataFmt + "\n";
+        msg += clock + " *Hora:* " + a.time + "\n";
+        msg += hair + " *Procedimento:* " + (a.service || 'Corte') + "\n\n";
+        msg += warning + " _Em caso de não comparecimento, o valor da taxa não será devolvido._\n\n";
+        msg += "Podemos confirmar? " + heart;
         
-        // Abre o WhatsApp usando um método de link direto
+        // Abre o link do WhatsApp com a codificação URI correta
         const waUrl = "https://wa.me/55" + a.phone + "?text=" + encodeURIComponent(msg);
         window.location.href = waUrl;
     }
