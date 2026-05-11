@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aline Silva Hair - Agenda Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c5a059;
+            --navy: #0a192f;
+            --cream: #f9f7f2;
+            --white: #ffffff;
+            --whatsapp: #25d366;
+            --danger: #ff4d4f;
+            --success: #52c41a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--cream); color: var(--navy); padding: 10px; overflow-x: hidden; }
+        .container { max-width: 400px; margin: 0 auto; }
+
+        /* --- LOGO --- */
+        header { text-align: center; margin-bottom: 15px; }
+        .logo-container {
+            width: 100px; height: 100px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        header h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; letter-spacing: 1px; }
+
+        /* --- CARD CADASTRO --- */
+        .card { background: var(--white); padding: 15px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 15px; }
+        .input-group { margin-bottom: 8px; }
+        label { display: block; font-size: 0.55rem; font-weight: 700; margin-bottom: 3px; color: var(--gold); text-transform: uppercase; }
+        input { width: 100%; padding: 10px; border: 1.5px solid #f2f2f2; border-radius: 10px; font-size: 0.85rem; outline: none; background: #fafafa; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .btn-add { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 0.75rem; }
+
+        /* --- CALENDÁRIO NOVO --- */
+        .calendar-card { background: var(--white); border-radius: 18px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 15px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: var(--gold); font-weight: 700; font-size: 0.9rem; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .day-name { font-size: 0.6rem; font-weight: 700; color: #ccc; text-transform: uppercase; }
+        .day { 
+            height: 35px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600;
+        }
+        .day.today { color: var(--gold); border: 1px solid var(--gold); }
+        .day.selected { background: var(--gold); color: white !important; }
+        .day.has-app::after {
+            content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; 
+            background: var(--gold); border-radius: 50%;
+        }
+        .day.selected.has-app::after { background: white; }
+
+        /* --- LISTA --- */
+        .list-header { font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; margin: 10px 0; padding-left: 5px; }
+        .appointment-item {
+            background: white; padding: 12px; border-radius: 15px;
+            margin-bottom: 8px; display: flex; align-items: center;
+            justify-content: space-between; border-left: 5px solid var(--gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .info { flex: 1; overflow: hidden; }
+        .info .time { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
+        .info h4 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--navy); }
+        .info p { font-size: 0.7rem; color: #999; }
+
+        .actions { display: flex; gap: 5px; }
+        .btn-action { border: none; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-ws { background: #e8f9ee; color: var(--whatsapp); }
+        .btn-check { background: #f0f0f0; color: #ccc; }
+        .btn-check.done { background: #f6ffed; color: var(--success); }
+        .btn-del { background: #fff1f0; color: var(--danger); }
+        .icon-svg { width: 16px; height: 16px; fill: currentColor; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo-container"><img src="logo_aline.jpg"></div>
+        <h1>Aline Silva Hair</h1>
+    </header>
+
+    <div class="card">
+        <div class="input-group">
+            <label>Cliente</label>
+            <input type="text" id="clientName" placeholder="Nome">
+        </div>
+        <div class="input-group">
+            <label>WhatsApp</label>
+            <input type="tel" id="clientPhone" placeholder="Ex: 19999998888">
+        </div>
+        <div class="grid-2">
+            <div class="input-group"><label>Hora</label><input type="time" id="appTime"></div>
+            <div class="input-group"><label>Data</label><input type="date" id="appDate"></div>
+        </div>
+        <div class="input-group">
+            <label>Procedimento</label>
+            <input type="text" id="appService" placeholder="Ex: Corte">
+        </div>
+        <button class="btn-add" onclick="addAppointment()">Agendar</button>
+    </div>
+
+    <div class="calendar-card">
+        <div class="calendar-header">
+            <span id="monthDisplay">Maio 2026</span>
+            <div style="display: flex; gap: 15px;">
+                <span onclick="changeMonth(-1)" style="cursor:pointer"><</span>
+                <span onclick="changeMonth(1)" style="cursor:pointer">></span>
+            </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+            </div>
+    </div>
+
+    <div class="list-header" id="listDateTitle">Agendamentos</div>
+    <div id="scheduleList"></div>
+</div>
+
+<svg style="display: none;">
+    <symbol id="icon-ws" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+    <symbol id="icon-del" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+</svg>
+
+<script>
+    let currentDate = new Date();
+    let selectedDate = new Date().toISOString().split('T')[0];
+    let appointments = JSON.parse(localStorage.getItem('aline_appointments')) || [];
+
+    // Inicialização
+    document.getElementById('appDate').value = selectedDate;
+    renderCalendar();
+    renderAppointments();
+
+    function addAppointment() {
+        const name = document.getElementById('clientName').value;
+        const phone = document.getElementById('clientPhone').value;
+        const time = document.getElementById('appTime').value;
+        const date = document.getElementById('appDate').value;
+        const service = document.getElementById('appService').value;
+
+        if(!name || !time || !date) return alert("Preencha o Nome, Hora e Data.");
+
+        appointments.push({
+            id: Date.now(),
+            name, phone: phone.replace(/\D/g, ''),
+            time, date, service, status: 'pending'
+        });
+
+        localStorage.setItem('aline_appointments', JSON.stringify(appointments));
+        selectedDate = date;
+        renderCalendar();
+        renderAppointments();
+        
+        // Limpa campos
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientPhone').value = '';
+        document.getElementById('appService').value = '';
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const display = document.getElementById('monthDisplay');
+        grid.innerHTML = '';
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(currentDate);
+        display.innerText = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
+
+        const dayNames = ['D','S','T','Q','Q','S','S'];
+        dayNames.forEach(d => grid.innerHTML += `<div class="day-name">${d}</div>`);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        for(let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+
+        for(let d = 1; d <= totalDays; d++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const hasApp = appointments.some(a => a.date === dateStr);
+            const isSelected = selectedDate === dateStr;
+            const isToday = new Date().toISOString().split('T')[0] === dateStr;
+
+            grid.innerHTML += `
+                <div class="day ${isSelected ? 'selected' : ''} ${hasApp ? 'has-app' : ''} ${isToday ? 'today' : ''}" 
+                     onclick="selectDay('${dateStr}')">
+                    ${d}
+                </div>`;
+        }
+    }
+
+    function selectDay(date) {
+        selectedDate = date;
+        renderCalendar();
+        renderAppointments();
+    }
+
+    function changeMonth(step) {
+        currentDate.setMonth(currentDate.getMonth() + step);
+        renderCalendar();
+    }
+
+    function renderAppointments() {
+        const list = document.getElementById('scheduleList');
+        const title = document.getElementById('listDateTitle');
+        list.innerHTML = '';
+        
+        const [y, m, d] = selectedDate.split('-');
+        title.innerText = `Agenda: ${d}/${m}/${y}`;
+
+        const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
+
+        if(filtered.length === 0) {
+            list.innerHTML = '<div class="empty-state">Sem horários para este dia.</div>';
+            return;
+        }
+
+        filtered.forEach(a => {
+            const isDone = a.status === 'done';
+            list.innerHTML += `
+                <div class="appointment-item" style="opacity: ${isDone ? '0.5' : '1'}; border-left-color: ${isDone ? '#52c41a' : '#c5a059'}">
+                    <div class="info">
+                        <span class="time">${a.time}</span>
+                        <h4 style="text-decoration: ${isDone ? 'line-through' : 'none'}">${a.name}</h4>
+                        <p>${a.service || 'Corte'}</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-action btn-ws" onclick="sendWhatsApp(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-ws"></use></svg></button>
+                        <button class="btn-action btn-check ${isDone ? 'done' : ''}" onclick="toggleStatus(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-check"></use></svg></button>
+                        <button class="btn-action btn-del" onclick="deleteApp(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-del"></use></svg></button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function sendWhatsApp(id) {
+        const a = appointments.find(x => x.id === id);
+        const dataFmt = a.date.split('-').reverse().join('/');
+        const msg = encodeURIComponent(`Olá, ${a.name}! ✨ Confirmando seu horário na *Aline Silva Hair*.\n\n🗓️ *Data:* ${dataFmt}\n⏰ *Hora:* ${a.time}\n💇 *Procedimento:* ${a.service || 'Corte'}\n\n⚠️ _Em caso de não comparecimento, o valor da taxa não será devolvido._\n\nPodemos confirmar? 🤎`);
+        window.location.assign(`https://wa.me/55${a.phone}?text=${msg}`);
+    }
+
+    function toggleStatus(id) {
+        appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a);
+        save();
+    }
+
+    function deleteApp(id) {
+        if(confirm("Apagar?")) {
+            appointments = appointments.filter(a => a.id !== id);
+            save();
+        }
+    }
+
+    function save() {
+        localStorage.setItem('aline_appointments', JSON.stringify(appointments));
+        renderCalendar();
+        renderAppointments();
+    }
+</script>
+
+</body>
+</html>
