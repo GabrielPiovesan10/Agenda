@@ -1,0 +1,20 @@
+{
+  "name": "Aline Silva Hair - Agenda",
+  "short_name": "Agenda Hair",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f9f7f2",
+  "theme_color": "#0a192f",
+  "icons": [
+    {
+      "src": "logo_aline.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo_aline.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
