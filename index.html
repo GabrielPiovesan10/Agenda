@@ -16,7 +16,7 @@
         .container { max-width: 400px; margin: 0 auto; }
 
         header { text-align: center; margin-bottom: 15px; }
-        .logo-container { width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: white; }
+        .logo-container { width: 110px; height: 110px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: white; }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         header h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; letter-spacing: 1px; }
 
@@ -57,7 +57,7 @@
 
 <div class="container">
     <header>
-        <div class="logo-container"><img src="logo_aline.png"></div>
+        <div class="logo-container"><img src="logo_aline.jpg"></div>
         <h1>Aline Silva Hair</h1>
     </header>
 
@@ -152,7 +152,7 @@
         const [y, m, d] = selectedDate.split('-');
         document.getElementById('listDateTitle').innerText = `Agenda: ${d}/${m}/${y}`;
         const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
-        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; return; }
+        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários para hoje.</div>'; return; }
         filtered.forEach(a => {
             const isDone = a.status === 'done';
             list.innerHTML += `
@@ -171,22 +171,29 @@
         });
     }
 
-    // A SOLUÇÃO MESTRA: MENSAGEM JÁ CODIFICADA PARA URL (BYPASS TOTAL)
+    // AGORA OS EMOJIS SÃO GERADOS VIA CÓDIGO UNICODE INTERNO (NÃO TEM COMO DAR DIAMANTE)
     function sendWhatsApp(id) {
         const a = appointments.find(x => x.id === id);
         const dataFmt = a.date.split('-').reverse().join('/');
         
-        // Texto puro + Codificação de URL para emojis (Isso é impossível de quebrar)
-        const waBase = "https://wa.me/55" + a.phone + "?text=";
-        
-        const line1 = encodeURIComponent("Olá, " + a.name + "! ") + "%E2%9C%A8" + encodeURIComponent(" Confirmando seu horário na *Aline Silva Hair*.") + "%0A%0A";
-        const line2 = "%F0%9F%97%93%EF%B8%8F" + encodeURIComponent(" *Data:* " + dataFmt) + "%0A";
-        const line3 = "%E2%8F%B0" + encodeURIComponent(" *Hora:* " + a.time) + "%0A";
-        const line4 = "%F0%9F%92%87" + encodeURIComponent(" *Procedimento:* " + (a.service || 'Corte')) + "%0A%0A";
-        const line5 = "%E2%9A%A0%EF%B8%8F" + encodeURIComponent(" _Em caso de não comparecimento, o valor da taxa não será devolvido._") + "%0A%0A";
-        const line6 = encodeURIComponent("Podemos confirmar? ") + "%F0%9F%A4%8E";
+        // Escape Unicode para garantir que o texto chegue limpo
+        const sparkle = "\u2728";
+        const calendar = "\uD83D\uDDD3\uFE0F";
+        const clock = "\u23F0";
+        const hair = "\uD83D\uDC87";
+        const warning = "\u26A0\uFE0F";
+        const heart = "\uD83E\uDD0E";
 
-        window.location.href = waBase + line1 + line2 + line3 + line4 + line5 + line6;
+        let msg = "Olá, " + a.name + "! " + sparkle + " Confirmando seu horário na *Aline Silva Hair*.\n\n";
+        msg += calendar + " *Data:* " + dataFmt + "\n";
+        msg += clock + " *Hora:* " + a.time + "\n";
+        msg += hair + " *Procedimento:* " + (a.service || 'Corte') + "\n\n";
+        msg += warning + " _Em caso de não comparecimento, o valor da taxa não será devolvido._\n\n";
+        msg += "Podemos confirmar? " + heart;
+        
+        // Usa o link da API oficial que é mais estável para Android
+        const waUrl = "https://api.whatsapp.com/send?phone=55" + a.phone + "&text=" + encodeURIComponent(msg);
+        window.location.href = waUrl;
     }
 
     function toggleStatus(id) { appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a); save(); }
