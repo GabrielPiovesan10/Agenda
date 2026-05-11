@@ -252,7 +252,7 @@
         msg += `- Data: ${dataFmt}\n`;
         msg += `- Hora: ${a.time}\n`;
         msg += `- Procedimento: ${a.service || 'Corte'}\n\n`;
-        msg += `* Em caso de não comparecimento, o valor da taxa não será devolvido.\n\n`;
+        msg += `* Em caso de não comparecimento, o valor da taxa de 50% não será devolvido.\n\n`;
         msg += `Podemos confirmar?`;
         
         const url = `https://wa.me/55${a.phone}?text=${encodeURIComponent(msg)}`;
