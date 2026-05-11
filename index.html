@@ -39,27 +39,18 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .btn-add { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 0.75rem; }
 
-        /* --- CALENDÁRIO COM MARCAÇÕES --- */
         .calendar-card { background: var(--white); border-radius: 18px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: var(--gold); font-weight: 700; font-size: 0.85rem; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
         .day-name { font-size: 0.6rem; font-weight: 700; color: #ccc; text-transform: uppercase; padding-bottom: 5px; }
-        .day { 
-            height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600;
-        }
+        .day { height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600; }
         .day.today { color: var(--gold); border: 1px solid var(--gold); }
         .day.selected { background: var(--gold); color: white !important; }
         .day.has-app::after { content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
         .day.selected.has-app::after { background: white; }
 
         .list-header { font-size: 0.7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; margin: 10px 0; padding-left: 5px; letter-spacing: 1px; }
-        .appointment-item {
-            background: white; padding: 12px; border-radius: 15px;
-            margin-bottom: 8px; display: flex; align-items: center;
-            justify-content: space-between; border-left: 5px solid var(--gold);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
+        .appointment-item { background: white; padding: 12px; border-radius: 15px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .info { flex: 1; overflow: hidden; }
         .info .time { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
         .info h4 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--navy); }
@@ -72,14 +63,13 @@
         .btn-check.done { background: #f6ffed; color: var(--success); }
         .btn-del { background: #fff1f0; color: var(--danger); }
         .icon-svg { width: 16px; height: 16px; fill: currentColor; }
-        .empty-state { text-align: center; padding: 30px; opacity: 0.4; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="logo-container"><img src="logo_aline.jpg" alt="Aline Silva Hair"></div>
+        <div class="logo-container"><img src="logo_aline.jpg"></div>
         <h1>Aline Silva Hair</h1>
     </header>
 
@@ -139,7 +129,7 @@
         const time = document.getElementById('appTime').value;
         const date = document.getElementById('appDate').value;
         const service = document.getElementById('appService').value;
-        if(!name || !time || !date) return alert("Preencha o Nome, Hora e Data.");
+        if(!name || !time || !date) return alert("Preencha Nome, Hora e Data.");
         appointments.push({id: Date.now(), name, phone: phone.replace(/\D/g, ''), time, date, service, status: 'pending'});
         localStorage.setItem('aline_appointments', JSON.stringify(appointments));
         selectedDate = date;
@@ -177,7 +167,7 @@
         const [y, m, d] = selectedDate.split('-');
         title.innerText = `Agenda: ${d}/${m}/${y}`;
         const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
-        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; return; }
+        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários para hoje.</div>'; return; }
         filtered.forEach(a => {
             const isDone = a.status === 'done';
             list.innerHTML += `
@@ -200,13 +190,14 @@
         const a = appointments.find(x => x.id === id);
         const dataFmt = a.date.split('-').reverse().join('/');
         
-        // CÓDIGOS UNICODE BLINDADOS (Não quebram no Koder/Android)
-        const sparkle = '\u2728';
-        const calendar = '\uD83D\uDDD3\uFE0F';
-        const clock = '\u23F0';
-        const hair = '\uD83D\uDC87';
-        const warning = '\u26A0\uFE0F';
-        const heart = '\uD83E\uDD0E';
+        // CÓDIGOS HEXADECIMAIS DIRETOS (IMPOSSÍVEL DAR ERRO DE DIAMANTE PRETO)
+        const s = (h) => decodeURIComponent(h);
+        const sparkle = s('%E2%9C%A8');
+        const calendar = s('%F0%9F%97%93%EF%B8%8F');
+        const clock = s('%E2%8F%B0');
+        const hair = s('%F0%9F%92%87');
+        const warning = s('%E2%9A%A0%EF%B8%8F');
+        const heart = s('%F0%9F%A4%8E');
 
         let msg = `Olá, ${a.name}! ${sparkle} Confirmando seu horário na *Aline Silva Hair*.\n\n`;
         msg += `${calendar} *Data:* ${dataFmt}\n`;
