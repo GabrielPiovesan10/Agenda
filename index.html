@@ -20,10 +20,10 @@
         body { background-color: var(--cream); color: var(--navy); padding: 10px; overflow-x: hidden; }
         .container { max-width: 400px; margin: 0 auto; }
 
-        /* --- LOGO --- */
+        /* --- LOGO (SEM BORDA EXTRA) --- */
         header { text-align: center; margin-bottom: 15px; }
         .logo-container {
-            width: 100px; height: 100px;
+            width: 110px; height: 110px;
             margin: 0 auto 10px;
             border-radius: 50%;
             overflow: hidden;
@@ -41,19 +41,19 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .btn-add { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 0.75rem; }
 
-        /* --- CALENDÁRIO COM DESTAQUES --- */
+        /* --- CALENDÁRIO COM MARCAÇÕES --- */
         .calendar-card { background: var(--white); border-radius: 18px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: var(--gold); font-weight: 700; font-size: 0.85rem; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
         .day-name { font-size: 0.6rem; font-weight: 700; color: #ccc; text-transform: uppercase; padding-bottom: 5px; }
         .day { 
             height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600; transition: 0.2s;
+            font-size: 0.8rem; cursor: pointer; border-radius: 8px; position: relative; font-weight: 600;
         }
         .day.today { color: var(--gold); border: 1px solid var(--gold); }
         .day.selected { background: var(--gold); color: white !important; }
         
-        /* Bolinha de destaque para dias com agendamento */
+        /* Bolinha dourada nos dias com agendamento */
         .day.has-app::after {
             content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px; 
             background: var(--gold); border-radius: 50%;
@@ -79,7 +79,7 @@
         .btn-check { background: #f0f0f0; color: #ccc; }
         .btn-check.done { background: #f6ffed; color: var(--success); }
         .btn-del { background: #fff1f0; color: var(--danger); }
-        .icon-svg { width: 16px; height: 16px; fill: currentColor; }
+        .icon-svg { width: 18px; height: 18px; fill: currentColor; }
 
         .empty-state { text-align: center; padding: 30px; opacity: 0.4; font-size: 0.75rem; }
     </style>
@@ -95,11 +95,11 @@
     <div class="card">
         <div class="input-group">
             <label>Nome da Cliente</label>
-            <input type="text" id="clientName" placeholder="Digite o nome...">
+            <input type="text" id="clientName" placeholder="Ex: Ana Souza">
         </div>
         <div class="input-group">
             <label>WhatsApp</label>
-            <input type="tel" id="clientPhone" placeholder="Ex: 19991234567">
+            <input type="tel" id="clientPhone" placeholder="Ex: 19999887766">
         </div>
         <div class="grid-2">
             <div class="input-group"><label>Hora</label><input type="time" id="appTime"></div>
@@ -107,7 +107,7 @@
         </div>
         <div class="input-group">
             <label>Procedimento</label>
-            <input type="text" id="appService" placeholder="Ex: Corte">
+            <input type="text" id="appService" placeholder="Ex: Progressiva">
         </div>
         <button class="btn-add" onclick="addAppointment()">Agendar Horário</button>
     </div>
@@ -149,7 +149,7 @@
         const date = document.getElementById('appDate').value;
         const service = document.getElementById('appService').value;
 
-        if(!name || !time || !date) return alert("Preencha o Nome, Hora e Data.");
+        if(!name || !time || !date) return alert("Preencha Nome, Hora e Data.");
 
         appointments.push({
             id: Date.now(),
@@ -171,60 +171,35 @@
         const grid = document.getElementById('calendarGrid');
         const display = document.getElementById('monthDisplay');
         grid.innerHTML = '';
-        
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(currentDate);
         display.innerText = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
-
         const dayNames = ['D','S','T','Q','Q','S','S'];
         dayNames.forEach(d => grid.innerHTML += `<div class="day-name">${d}</div>`);
-
         const firstDay = new Date(year, month, 1).getDay();
         const totalDays = new Date(year, month + 1, 0).getDate();
-
         for(let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
-
         for(let d = 1; d <= totalDays; d++) {
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const hasApp = appointments.some(a => a.date === dateStr);
             const isSelected = selectedDate === dateStr;
             const isToday = new Date().toISOString().split('T')[0] === dateStr;
-
-            grid.innerHTML += `
-                <div class="day ${isSelected ? 'selected' : ''} ${hasApp ? 'has-app' : ''} ${isToday ? 'today' : ''}" 
-                     onclick="selectDay('${dateStr}')">
-                    ${d}
-                </div>`;
+            grid.innerHTML += `<div class="day ${isSelected ? 'selected' : ''} ${hasApp ? 'has-app' : ''} ${isToday ? 'today' : ''}" onclick="selectDay('${dateStr}')">${d}</div>`;
         }
     }
 
-    function selectDay(date) {
-        selectedDate = date;
-        renderCalendar();
-        renderAppointments();
-    }
-
-    function changeMonth(step) {
-        currentDate.setMonth(currentDate.getMonth() + step);
-        renderCalendar();
-    }
+    function selectDay(date) { selectedDate = date; renderCalendar(); renderAppointments(); }
+    function changeMonth(step) { currentDate.setMonth(currentDate.getMonth() + step); renderCalendar(); }
 
     function renderAppointments() {
         const list = document.getElementById('scheduleList');
         const title = document.getElementById('listDateTitle');
         list.innerHTML = '';
-        
         const [y, m, d] = selectedDate.split('-');
         title.innerText = `Agenda: ${d}/${m}/${y}`;
-
         const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
-
-        if(filtered.length === 0) {
-            list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>';
-            return;
-        }
-
+        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários para hoje.</div>'; return; }
         filtered.forEach(a => {
             const isDone = a.status === 'done';
             list.innerHTML += `
@@ -247,35 +222,20 @@
         const a = appointments.find(x => x.id === id);
         const dataFmt = a.date.split('-').reverse().join('/');
         
-        // MENSAGEM COM SÍMBOLOS UNIVERSAIS (PARA NÃO DAR ERRO NO ANDROID)
-        let msg = `Olá, ${a.name}! Confirmando seu horário na Aline Silva Hair.\n\n`;
-        msg += `- Data: ${dataFmt}\n`;
-        msg += `- Hora: ${a.time}\n`;
-        msg += `- Procedimento: ${a.service || 'Corte'}\n\n`;
-        msg += `* Em caso de não comparecimento, o valor da taxa de 50% não será devolvido.\n\n`;
-        msg += `Podemos confirmar?`;
+        // EMOJIS UNIVERSAIS VOLTARAM ✨
+        let msg = `Olá, ${a.name}! ✨ Confirmando seu horário na *Aline Silva Hair*.\n\n`;
+        msg += `🗓️ *Data:* ${dataFmt}\n`;
+        msg += `⏰ *Hora:* ${a.time}\n`;
+        msg += `💇 *Procedimento:* ${a.service || 'Corte'}\n\n`;
+        msg += `⚠️ _Em caso de não comparecimento, o valor da taxa de 50% não será devolvido._\n\n`;
+        msg += `Podemos confirmar? 🤎`;
         
-        const url = `https://wa.me/55${a.phone}?text=${encodeURIComponent(msg)}`;
-        window.location.assign(url);
+        window.location.assign(`https://wa.me/55${a.phone}?text=${encodeURIComponent(msg)}`);
     }
 
-    function toggleStatus(id) {
-        appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a);
-        save();
-    }
-
-    function deleteApp(id) {
-        if(confirm("Deseja apagar este horário?")) {
-            appointments = appointments.filter(a => a.id !== id);
-            save();
-        }
-    }
-
-    function save() {
-        localStorage.setItem('aline_appointments', JSON.stringify(appointments));
-        renderCalendar();
-        renderAppointments();
-    }
+    function toggleStatus(id) { appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a); save(); }
+    function deleteApp(id) { if(confirm("Apagar?")) { appointments = appointments.filter(a => a.id !== id); save(); } }
+    function save() { localStorage.setItem('aline_appointments', JSON.stringify(appointments)); renderCalendar(); renderAppointments(); }
 </script>
 
 </body>
