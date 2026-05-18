@@ -44,7 +44,11 @@
         .day.has-app::after { content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
         .day.selected.has-app::after { background: white; }
 
-        .list-header { font-size: 0.7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; margin: 10px 0; padding-left: 5px; }
+        /* Estilo da seção do título de agendamentos e faturamento */
+        .list-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 0 5px; }
+        .list-header { font-size: 0.7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; }
+        .day-total { font-size: 0.75rem; font-weight: 600; color: var(--success); background: #f6ffed; padding: 4px 10px; border-radius: 20px; border: 1px solid #b7eb8f; }
+
         .appointment-item { background: white; padding: 12px; border-radius: 15px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: background 0.3s ease, border-color 0.3s ease; }
         .info .time { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
         .info h4 { font-size: 0.95rem; color: var(--navy); }
@@ -76,6 +80,13 @@
         .brand-sub { display: block; font-size: 0.65rem; color: #bbb; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-weight: 400; }
         .login-card h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.4rem; margin-bottom: 25px; letter-spacing: 1px; font-weight: 700; }
         .btn-login { width: 100%; padding: 15px; background: var(--navy); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; margin-top: 15px; font-size: 0.8rem; letter-spacing: 0.5px; }
+
+        /* Estilos da Seção de Backup Discreta */
+        .backup-wrapper { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-top: 20px; background: var(--white); border-radius: 15px; border: 1px dashed rgba(197, 160, 89, 0.3); }
+        .backup-title { font-size: 0.6rem; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; }
+        .backup-actions { display: flex; gap: 8px; }
+        .btn-backup { background: none; border: none; font-size: 0.65rem; font-weight: 600; color: var(--gold); cursor: pointer; text-transform: uppercase; padding: 5px; }
+        .btn-backup.import-color { color: var(--navy); }
     </style>
 </head>
 <body>
@@ -106,7 +117,10 @@
             <div class="input-group"><label>Hora</label><input type="time" id="appTime"></div>
             <div class="input-group"><label>Data</label><input type="date" id="appDate"></div>
         </div>
-        <div class="input-group"><label>Procedimento</label><input type="text" id="appService" placeholder="Ex: Corte"></div>
+        <div class="grid-2">
+            <div class="input-group"><label>Procedimento</label><input type="text" id="appService" placeholder="Ex: Corte"></div>
+            <div class="input-group"><label>Valor (R$)</label><input type="number" id="appValue" placeholder="0,00" step="0.01"></div>
+        </div>
         <button class="btn-add" onclick="addAppointment()">Agendar</button>
     </div>
 
@@ -121,8 +135,20 @@
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
-    <div class="list-header" id="listDateTitle">Agendamentos</div>
+    <div class="list-header-wrapper">
+        <div class="list-header" id="listDateTitle">Agendamentos</div>
+        <div class="day-total" id="dayTotal">Feito: R$ 0,00</div>
+    </div>
     <div id="scheduleList"></div>
+
+    <div class="backup-wrapper">
+        <span class="backup-title">Segurança de Dados</span>
+        <div class="backup-actions">
+            <button class="btn-backup" onclick="exportData()">Exportar Cópia</button>
+            <button class="btn-backup import-color" onclick="document.getElementById('importFile').click()">Restaurar</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(this)">
+        </div>
+    </div>
 </div>
 
 <div id="customModal" class="custom-modal">
@@ -180,11 +206,37 @@
         const time = document.getElementById('appTime').value;
         const date = document.getElementById('appDate').value;
         const service = document.getElementById('appService').value;
+        const value = document.getElementById('appValue').value || '0';
+
         if(!name || !time || !date) return customAlert("Preencha Nome, Hora e Data.");
-        appointments.push({id: Date.now(), name, phone: phone.replace(/\D/g, ''), time, date, service, status: 'pending'});
-        localStorage.setItem('aline_appointments', JSON.stringify(appointments));
-        selectedDate = date; renderCalendar(); renderAppointments();
-        document.getElementById('clientName').value = ''; document.getElementById('clientPhone').value = ''; document.getElementById('appService').value = '';
+
+        // VALIDAÇÃO DE CHOQUE DE HORÁRIO
+        const hasClash = appointments.some(a => a.date === date && a.time === time);
+
+        const executeAdd = () => {
+            appointments.push({
+                id: Date.now(), 
+                name, 
+                phone: phone.replace(/\D/g, ''), 
+                time, 
+                date, 
+                service, 
+                value: parseFloat(value), 
+                status: 'pending'
+            });
+            localStorage.setItem('aline_appointments', JSON.stringify(appointments));
+            selectedDate = date; renderCalendar(); renderAppointments();
+            document.getElementById('clientName').value = ''; 
+            document.getElementById('clientPhone').value = ''; 
+            document.getElementById('appService').value = '';
+            document.getElementById('appValue').value = '';
+        };
+
+        if(hasClash) {
+            customConfirm("Aviso: Já existe um atendimento agendado para este horário. Deseja marcar mesmo assim?", executeAdd);
+        } else {
+            executeAdd();
+        }
     }
 
     function renderCalendar() {
@@ -216,14 +268,27 @@
         const [y, m, d] = selectedDate.split('-');
         document.getElementById('listDateTitle').innerText = `Agenda: ${d}/${m}/${y}`;
         const filtered = appointments.filter(a => a.date === selectedDate).sort((a,b) => a.time.localeCompare(b.time));
-        if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; return; }
+        
+        let revenueTotal = 0;
+
+        if(filtered.length === 0) { 
+            list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; 
+            document.getElementById('dayTotal').innerText = 'Feito: R$ 0,00';
+            return; 
+        }
+
         filtered.forEach(a => {
             const isDone = a.status === 'done';
+            const itemValue = parseFloat(a.value || 0);
+            
+            // SOMA DO FATURAMENTO: Apenas se estiver marcado como concluído
+            if(isDone) revenueTotal += itemValue;
+
             list.innerHTML += `<div class="appointment-item" style="background: ${isDone ? '#f6ffed' : 'white'}; border-left-color: ${isDone ? '#52c41a' : '#c5a059'}">
                 <div class="info">
                     <span class="time" style="color: ${isDone ? '#52c41a' : 'var(--gold)'}">${a.time}</span>
                     <h4 style="color: ${isDone ? '#237804' : 'var(--navy)'}">${a.name}</h4>
-                    <p>${a.service || 'Corte'}</p>
+                    <p>${a.service || 'Corte'} • R$ ${itemValue.toFixed(2).replace('.', ',')}</p>
                 </div>
                 <div class="actions">
                     <button class="btn-action btn-ws" onclick="sendWhatsApp(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-ws"></use></svg></button>
@@ -231,6 +296,8 @@
                     <button class="btn-action btn-del" onclick="deleteApp(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-del"></use></svg></button>
                 </div></div>`;
         });
+
+        document.getElementById('dayTotal').innerText = `Feito: R$ ${revenueTotal.toFixed(2).replace('.', ',')}`;
     }
 
     function sendWhatsApp(id) {
@@ -241,7 +308,6 @@
         msg += e("1F5D3") + e("FE0F") + " *Data:* " + dataFmt + "\n";
         msg += e("23F0") + " *Hora:* " + a.time + "\n";
         msg += e("1F487") + " *Procedimento:* " + (a.service || 'Corte') + "\n\n";
-        msg += e("26A0") + e("FE0F") + " _Em caso de não comparecimento, o valor da taxa de 50% não será devolvido._\n\n";
         msg += "Podemos confirmar? " + e("1F90E");
         window.location.href = "https://api.whatsapp.com/send?phone=55" + a.phone + "&text=" + encodeURIComponent(msg);
     }
@@ -262,6 +328,41 @@
         localStorage.setItem('aline_appointments', JSON.stringify(appointments)); 
         renderCalendar(); 
         renderAppointments(); 
+    }
+
+    // FUNÇÕES DE BACKUP
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appointments));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `backup_agenda_gptech.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    customConfirm("Atenção: A restauração vai substituir todos os agendamentos atuais. Confirmar?", function() {
+                        appointments = imported;
+                        save();
+                        customAlert("Dados restaurados com sucesso!");
+                    });
+                } else {
+                    customAlert("Arquivo de backup inválido.");
+                }
+            } catch(err) {
+                customAlert("Erro ao processar o arquivo.");
+            }
+            input.value = '';
+        };
+        reader.readAsText(file);
     }
 
     function customAlert(message) {
