@@ -73,7 +73,11 @@
         /* Estilos do Painel de Login */
         .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; padding: 10px; }
         .login-card { background: var(--white); width: 100%; max-width: 350px; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(197, 160, 89, 0.15); text-align: center; }
-        .login-card h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.3rem; margin-bottom: 25px; letter-spacing: 1px; }
+        
+        /* NOVO ESTILO DO TITULO DO LOGIN */
+        .brand-sub { display: block; font-size: 0.65rem; color: #bbb; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-weight: 400; }
+        .login-card h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.4rem; margin-bottom: 25px; letter-spacing: 1px; font-weight: 700; }
+        
         .btn-login { width: 100%; padding: 15px; background: var(--navy); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; margin-top: 15px; font-size: 0.8rem; letter-spacing: 0.5px; }
     </style>
 </head>
@@ -82,7 +86,10 @@
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
         <div class="logo-container"><img src="logo_aline.jpg" alt="Aline Silva Hair"></div>
-        <h2>Sistema GP TECH</h2>
+        
+        <span class="brand-sub">GP TECH</span>
+        <h2>Agenda Premium</h2>
+        
         <div class="input-group">
             <label>Senha de Acesso</label>
             <input type="password" id="loginPassword" placeholder="Digite a senha..." onkeypress="if(event.key === 'Enter') checkLogin()">
@@ -167,7 +174,7 @@
         const pass = document.getElementById('loginPassword').value;
         const hashedPass = await sha256(pass);
         
-
+    
         if(hashedPass === 'bd82cc586ed56e1b1c071447fea0e03d0c861792f26bedd2a5651fa8e26f6c2d') {
             sessionStorage.setItem('aline_logged', 'true');
             document.getElementById('loginScreen').style.display = 'none';
@@ -249,48 +256,4 @@
         window.location.href = "https://api.whatsapp.com/send?phone=55" + a.phone + "&text=" + encodeURIComponent(msg);
     }
 
-    function toggleStatus(id) { appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a); save(); }
-    function deleteApp(id) { 
-        customConfirm("Deseja realmente apagar este agendamento?", function() {
-            appointments = appointments.filter(a => a.id !== id); 
-            save(); 
-        });
-    }
-    function save() { localStorage.setItem('aline_appointments', JSON.stringify(appointments)); renderCalendar(); renderAppointments(); }
-
-    // Funções para Controle das Caixas de Aviso Customizadas
-    function customAlert(message) {
-        document.getElementById('modalTitle').innerText = "Aviso";
-        document.getElementById('modalText').innerText = message;
-        const btnConfirm = document.getElementById('modalConfirmBtn');
-        const btnCancel = document.getElementById('modalCancelBtn');
-        btnCancel.style.display = 'none';
-        btnConfirm.className = 'modal-btn modal-btn-confirm';
-        btnConfirm.onclick = closeCustomModal;
-        document.getElementById('customModal').classList.add('active');
-    }
-
-    function customConfirm(message, onConfirm) {
-        document.getElementById('modalTitle').innerText = "Confirmação";
-        document.getElementById('modalText').innerText = message;
-        const btnConfirm = document.getElementById('modalConfirmBtn');
-        const btnCancel = document.getElementById('modalCancelBtn');
-        btnCancel.style.display = 'block';
-        btnConfirm.className = 'modal-btn modal-btn-danger';
-        btnConfirm.onclick = function() { onConfirm(); closeCustomModal(); };
-        btnCancel.onclick = closeCustomModal;
-        document.getElementById('customModal').classList.add('active');
-    }
-
-    function closeCustomModal() {
-        document.getElementById('customModal').classList.remove('active');
-    }
-
-    // REGISTRO DO SERVICE WORKER PARA VIRAR APP
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(() => console.log('PWA Ativo!'));
-    }
-</script>
-
-</body>
-</html>
+    function toggleStatus(id) { appointments = appointments.map(a => a.id === id
