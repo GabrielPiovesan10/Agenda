@@ -45,7 +45,7 @@
         .day.selected.has-app::after { background: white; }
 
         .list-header { font-size: 0.7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; margin: 10px 0; padding-left: 5px; }
-        .appointment-item { background: white; padding: 12px; border-radius: 15px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .appointment-item { background: white; padding: 12px; border-radius: 15px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: background 0.3s ease, border-color 0.3s ease; }
         .info .time { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
         .info h4 { font-size: 0.95rem; color: var(--navy); }
         .info p { font-size: 0.7rem; color: #999; }
@@ -57,6 +57,18 @@
         .btn-check.done { background: #f6ffed; color: var(--success); }
         .btn-del { background: #fff1f0; color: var(--danger); }
         .icon-svg { width: 18px; height: 18px; fill: currentColor; }
+
+        /* Estilos das Caixas de Aviso Customizadas */
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 25, 47, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        .custom-modal.active { display: flex; }
+        .modal-content { background: var(--white); padding: 22px; border-radius: 18px; max-width: 320px; width: 100%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 1px solid rgba(197, 160, 89, 0.2); }
+        .modal-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; margin-bottom: 12px; font-weight: 700; letter-spacing: 0.5px; }
+        .modal-text { font-size: 0.85rem; color: var(--navy); margin-bottom: 20px; line-height: 1.5; font-weight: 400; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .modal-btn { padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.75rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+        .modal-btn-confirm { background: var(--navy); color: white; }
+        .modal-btn-cancel { background: #f5f5f5; color: #777; }
+        .modal-btn-danger { background: var(--danger); color: white; }
     </style>
 </head>
 <body>
@@ -93,6 +105,17 @@
     <div id="scheduleList"></div>
 </div>
 
+<div id="customModal" class="custom-modal">
+    <div class="modal-content">
+        <div id="modalTitle" class="modal-title">Aviso</div>
+        <div id="modalText" class="modal-text">Mensagem...</div>
+        <div class="modal-buttons">
+            <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">Cancelar</button>
+            <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">OK</button>
+        </div>
+    </div>
+</div>
+
 <svg style="display: none;">
     <symbol id="icon-ws" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></symbol>
     <symbol id="icon-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
@@ -113,7 +136,7 @@
         const time = document.getElementById('appTime').value;
         const date = document.getElementById('appDate').value;
         const service = document.getElementById('appService').value;
-        if(!name || !time || !date) return alert("Preencha Nome, Hora e Data.");
+        if(!name || !time || !date) return customAlert("Preencha Nome, Hora e Data.");
         appointments.push({id: Date.now(), name, phone: phone.replace(/\D/g, ''), time, date, service, status: 'pending'});
         localStorage.setItem('aline_appointments', JSON.stringify(appointments));
         selectedDate = date; renderCalendar(); renderAppointments();
@@ -152,8 +175,12 @@
         if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">Sem horários agendados.</div>'; return; }
         filtered.forEach(a => {
             const isDone = a.status === 'done';
-            list.innerHTML += `<div class="appointment-item" style="opacity: ${isDone ? '0.5' : '1'}; border-left-color: ${isDone ? '#52c41a' : '#c5a059'}">
-                <div class="info"><span class="time">${a.time}</span><h4>${a.name}</h4><p>${a.service || 'Corte'}</p></div>
+            list.innerHTML += `<div class="appointment-item" style="background: ${isDone ? '#f6ffed' : 'white'}; border-left-color: ${isDone ? '#52c41a' : '#c5a059'}">
+                <div class="info">
+                    <span class="time" style="color: ${isDone ? '#52c41a' : 'var(--gold)'}">${a.time}</span>
+                    <h4 style="color: ${isDone ? '#237804' : 'var(--navy)'}">${a.name}</h4>
+                    <p>${a.service || 'Corte'}</p>
+                </div>
                 <div class="actions">
                     <button class="btn-action btn-ws" onclick="sendWhatsApp(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-ws"></use></svg></button>
                     <button class="btn-action btn-check ${isDone ? 'done' : ''}" onclick="toggleStatus(${a.id})"><svg class="icon-svg"><use xlink:href="#icon-check"></use></svg></button>
@@ -176,8 +203,41 @@
     }
 
     function toggleStatus(id) { appointments = appointments.map(a => a.id === id ? {...a, status: a.status === 'pending' ? 'done' : 'pending'} : a); save(); }
-    function deleteApp(id) { if(confirm("Apagar?")) { appointments = appointments.filter(a => a.id !== id); save(); } }
+    function deleteApp(id) { 
+        customConfirm("Deseja realmente apagar este agendamento?", function() {
+            appointments = appointments.filter(a => a.id !== id); 
+            save(); 
+        });
+    }
     function save() { localStorage.setItem('aline_appointments', JSON.stringify(appointments)); renderCalendar(); renderAppointments(); }
+
+    // Funções para Controle das Caixas de Aviso Customizadas
+    function customAlert(message) {
+        document.getElementById('modalTitle').innerText = "Aviso";
+        document.getElementById('modalText').innerText = message;
+        const btnConfirm = document.getElementById('modalConfirmBtn');
+        const btnCancel = document.getElementById('modalCancelBtn');
+        btnCancel.style.display = 'none';
+        btnConfirm.className = 'modal-btn modal-btn-confirm';
+        btnConfirm.onclick = closeCustomModal;
+        document.getElementById('customModal').classList.add('active');
+    }
+
+    function customConfirm(message, onConfirm) {
+        document.getElementById('modalTitle').innerText = "Confirmação";
+        document.getElementById('modalText').innerText = message;
+        const btnConfirm = document.getElementById('modalConfirmBtn');
+        const btnCancel = document.getElementById('modalCancelBtn');
+        btnCancel.style.display = 'block';
+        btnConfirm.className = 'modal-btn modal-btn-danger';
+        btnConfirm.onclick = function() { onConfirm(); closeCustomModal(); };
+        btnCancel.onclick = closeCustomModal;
+        document.getElementById('customModal').classList.add('active');
+    }
+
+    function closeCustomModal() {
+        document.getElementById('customModal').classList.remove('active');
+    }
 
     // REGISTRO DO SERVICE WORKER PARA VIRAR APP
     if ('serviceWorker' in navigator) {
