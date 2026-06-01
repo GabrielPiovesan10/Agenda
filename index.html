@@ -174,7 +174,8 @@
     let appointments = JSON.parse(localStorage.getItem('aline_appointments')) || [];
 
     window.onload = function() {
-        if(sessionStorage.getItem('aline_logged') === 'true') {
+        // Agora verifica no localStorage se o usuário já fez login antes
+        if(localStorage.getItem('aline_logged') === 'true') {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
         }
@@ -192,7 +193,8 @@
         const pass = document.getElementById('loginPassword').value;
         const hashedPass = await sha256(pass);
         if(hashedPass === 'bd82cc586ed56e1b1c071447fea0e03d0c861792f26bedd2a5651fa8e26f6c2d') {
-            sessionStorage.setItem('aline_logged', 'true');
+            // Salva o estado de login permanentemente no aparelho do usuário
+            localStorage.setItem('aline_logged', 'true');
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
         } else {
